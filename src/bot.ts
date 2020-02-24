@@ -48,6 +48,7 @@ export class WelcomeBot extends ActivityHandler {
           break;
         // مساعدة
         case "مساعدة": // 'help'
+        case "رحب بالقارئ":
           await this.sendIntroCard(context);
           break;
         default:
