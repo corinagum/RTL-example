@@ -34,37 +34,19 @@ export class WelcomeBot extends ActivityHandler {
       // set the default to false.
       const didBotWelcome = await this.welcomedUserProperty.get(context, false);
 
-      // Your bot should proactively send a welcome message to a personal chat the first time
-      // (and only the first time) a user initiates a personal chat with your bot.
-      if (didBotWelcome === false) {
-        // The channel should send the user name in the 'From' object
-        const userName = context.activity.from.name;
-        await context.sendActivity(
-          "You are seeing this message because this was your first message ever sent to this bot."
-        );
-        await context.sendActivity(
-          `It is a good practice to welcome the user and provide personal greeting. For example, welcome ${userName}.`
-        );
-
-        // Set the flag indicating the bot handled the user's first message.
-        await this.welcomedUserProperty.set(context, true);
-      } else {
-        // This example uses an exact match on user's input utterance.
-        // Consider using LUIS or QnA for Natural Language Processing.
-        const text = context.activity.text.toLowerCase();
-        switch (text) {
-          case "مرحبا":
-            await context.sendActivity(`أنت قلت "${context.activity.text}"`);
-            break;
-          // case 'intro':
-          case "مساعدة": // 'help'
-            await this.sendIntroCard(context);
-            break;
-          default:
-            await context.sendActivity(
-              `أهلا بك. اكتب المساعدة لمعرفة الأوامر سبيل المثال.`
-            );
-        }
+      // This example uses an exact match on user's input utterance.
+      // Consider using LUIS or QnA for Natural Language Processing.
+      const text = context.activity.text.toLowerCase();
+      switch (text) {
+        case `يشترى`:
+          await this.sendCarousel(context);
+        case "مساعدة": // 'help'
+          await this.sendIntroCard(context);
+          break;
+        default:
+          await context.sendActivity(
+            `أهلا بك. اكتب المساعدة لمعرفة الأوامر سبيل المثال.`  // welcome. Write help
+          );
       }
       // Save state changes
       await this.userState.saveChanges(context);
@@ -72,73 +54,78 @@ export class WelcomeBot extends ActivityHandler {
       // By calling next() you ensure that the next BotHandler is run.
       await next();
     });
+
+    this.onMembersAdded(async (context, next) => {
+      // Iterate over all new members added to the conversation
+      for (const idx in context.activity.membersAdded) {
+        if (
+          context.activity.membersAdded[idx].id !==
+          context.activity.recipient.id
+        ) {
+          await context.sendActivity(
+            "أهلا بك. اكتب المساعدة لمعرفة الأوامر سبيل المثال." // welcome. Write help
+          );
+        }
+      }
+
+      await next();
+    });
   }
 
   private async sendIntroCard(context: TurnContext) {
-    await context.sendActivity({
-      attachments: [
+    const card = {
+      $schema: "http://adaptivecards.io/schemas/adaptive-card.json",
+      type: "AdaptiveCard",
+      version: "1.0",
+      speak: "<s>مرحبا! إختر من إحدى النشاطاط بالأسفل</s>",
+      body: [
         {
-          contentType: "application/vnd.microsoft.card.adaptive",
-          content: {
-            $schema: "http://adaptivecards.io/schemas/adaptive-card.json",
-            type: "AdaptiveCard",
-            version: "1.0",
-            speak: "<s>مرحبا! إختر من إحدى النشاطاط بالأسفل</s>",
-            body: [
-              {
-                type: "TextBlock",
-                text: "مرحباً! انا اتحدث القليل من اللغة العربية",
-                size: "Large",
-                weight: "Bolder"
-              },
-              {
-                type: "TextBlock",
-                text: "(Hello! I speak some Arabic)",
-                size: "Large",
-                weight: "Bolder"
-              },
-              {
-                type: "TextBlock",
-                text: "اختر من احدى الأوامر العربية المتاحة بالأسفل",
-                isSubtle: true
-              },
-              {
-                type: "TextBlock",
-                text: "(Select from the available Arabic commands below)",
-                isSubtle: true,
-                spacing: "None"
-              }
-            ],
-            actions: [
-              {
-                data: "رحب بالقارئ",
-                type: "Action.Submit",
-                title: "رحب بالقارئ"
-              },
-              {
-                data: "يشترى",
-                type: "Action.Submit",
-                title: "carousel إظهر مكتبة دوارة"
-              },
-              {
-                data: "تحميل",
-                type: "Action.Submit",
-                title: "اظهر خاصية تحميل المرفقات"
-              },
-              {
-                data: "typing 1",
-                type: "Action.Submit",
-                title: "اعدادات تأثيرات الحركة للكتابة"
-              },
-              {
-                data: "نص",
-                type: "Action.Submit",
-                title: "markdown كارت"
-              }
-            ]
-          }
+          type: "TextBlock",
+          text: "مرحباً! انا اتحدث القليل من اللغة العربية",
+          size: "Large",
+          weight: "Bolder"
+        },
+        {
+          type: "TextBlock",
+          text: "اختر من احدى الأوامر العربية المتاحة بالأسفل",
+          isSubtle: true
+        }
+      ],
+      actions: [
+        {
+          data: "رحب بالقارئ",
+          type: "Action.Submit",
+          title: "رحب بالقارئ"
+        },
+        {
+          data: "يشترى",
+          type: "Action.Submit",
+          title: "carousel إظهر مكتبة دوارة"
+        },
+        {
+          data: "تحميل",
+          type: "Action.Submit",
+          title: "اظهر خاصية تحميل المرفقات"
+        },
+        {
+          data: "typing 1",
+          type: "Action.Submit",
+          title: "اعدادات تأثيرات الحركة للكتابة"
+        },
+        {
+          data: "نص",
+          type: "Action.Submit",
+          title: "markdown كارت"
         }
       ]
+    };
+
+    await context.sendActivity({
+      attachments: [CardFactory.adaptiveCard(card)]
     });
+  }
+
+  private async sendCarousel(context: TurnContext) {
+    console.log("carousel");
   }
 }

@@ -34,7 +34,7 @@ Welcome bot with Adaptive Cards to exemplify how to use RTL.
 - Start the bot
 
     ```bash
-    npm start
+    npm watch
     ```
 
 Open in Emultor or Web Chat.
