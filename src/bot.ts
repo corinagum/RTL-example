@@ -3,7 +3,6 @@
 
 // Import required Bot Framework classes.
 import {
-  ActionTypes,
   ActivityHandler,
   CardFactory,
   StatePropertyAccessor,
@@ -11,6 +10,9 @@ import {
   UserState
 } from "botbuilder";
 
+import { readFileSync } from 'fs';
+import { join } from 'path';
+import { isContext } from "vm";
 // Welcomed User property name
 const WELCOMED_USER = "welcomedUserProperty";
 
@@ -38,8 +40,13 @@ export class WelcomeBot extends ActivityHandler {
       // Consider using LUIS or QnA for Natural Language Processing.
       const text = context.activity.text.toLowerCase();
       switch (text) {
+        case `تحميل`:
+        await this.uploadFile(context);
+          break;
         case `يشترى`:
           await this.sendCarousel(context);
+          break;
+        // مساعدة
         case "مساعدة": // 'help'
           await this.sendIntroCard(context);
           break;
@@ -106,16 +113,6 @@ export class WelcomeBot extends ActivityHandler {
           data: "تحميل",
           type: "Action.Submit",
           title: "اظهر خاصية تحميل المرفقات"
-        },
-        {
-          data: "typing 1",
-          type: "Action.Submit",
-          title: "اعدادات تأثيرات الحركة للكتابة"
-        },
-        {
-          data: "نص",
-          type: "Action.Submit",
-          title: "markdown كارت"
         }
       ]
     };
@@ -126,6 +123,135 @@ export class WelcomeBot extends ActivityHandler {
   }
 
   private async sendCarousel(context: TurnContext) {
-    console.log("carousel");
+    const carousel = [
+      {
+        contentType: 'application/vnd.microsoft.card.hero',
+        content: {
+          title: 'تفاصيل عن الصورة 1',
+          subtitle: 'هذا عنوان فرعي',
+          text: 'السعر: E£###.## دولار امريكي',
+          images: [
+            {
+              url: `http://localhost:3978/assets/surface1.jpg`
+            }
+          ],
+          buttons: [
+            {
+              type: 'imBack',
+              value: 'مكان الشراء',
+              title: 'اماكن الشراء'
+            },
+            {
+              type: 'imBack',
+              value: 'المنتجات ذات الصلة',
+              title: 'المنتجات ذات الصلة'
+            }
+          ]
+        }
+      },
+      {
+        contentType: 'application/vnd.microsoft.card.hero',
+        content: {
+          title: 'تفاصيل عن الصورة 2',
+          subtitle: 'هذا عنوان فرعي',
+          text: 'السعر: E£###.## دولار امريكي',
+          images: [
+            {
+              url: `http://localhost:3978/assets/surface2.jpg`
+            }
+          ],
+          buttons: [
+            {
+              type: 'imBack',
+              value: 'مكان الشراء',
+              title: 'اماكن الشراء'
+            },
+            {
+              type: 'imBack',
+              value: 'المنتجات ذات الصلة',
+              title: 'المنتجات ذات الصلة'
+            }
+          ]
+        }
+      },
+      {
+        contentType: 'application/vnd.microsoft.card.hero',
+        content: {
+          title: 'تفاصيل عن الصورة 3',
+          subtitle: 'هذا عنوان فرعي',
+          text: 'السعر: E£###.## دولار امريكي',
+          images: [
+            {
+              url: `http://localhost:3978/assets/surface3.jpg`
+            }
+          ],
+          buttons: [
+            {
+              type: 'imBack',
+              value: 'مكان الشراء',
+              title: 'اماكن الشراء'
+            },
+            {
+              type: 'imBack',
+              value: 'المنتجات ذات الصلة',
+              title: 'المنتجات ذات الصلة'
+            }
+          ]
+        }
+      },
+      {
+        contentType: 'application/vnd.microsoft.card.hero',
+        content: {
+          title: 'تفاصيل عن الصورة 4',
+          subtitle: 'هذا عنوان فرعي',
+          text: 'السعر: E£###.## دولار امريكي',
+          images: [
+            {
+              url: `http://localhost:3978/assets/surface4.jpg`
+            }
+          ],
+          buttons: [
+            {
+              type: 'imBack',
+              value: 'مكان الشراء',
+              title: 'اماكن الشراء'
+            },
+            {
+              type: 'imBack',
+              value: 'المنتجات ذات الصلة',
+              title: 'المنتجات ذات الصلة'
+            }
+          ]
+        }
+      }
+    ]
+
+    await context.sendActivity({
+      type: 'message',
+      text: '',
+      attachmentLayout: 'carousel',
+        attachments: carousel
+    });
   }
+
+  private async uploadFile(context: TurnContext) {
+    const fileReceipt = {
+      type: 'message',
+      text: 'التقارير جاهزة، إطَّلع على الملف الملحق',
+      attachments: [
+        {
+          contentType: 'application/octet-stream',
+          contentUrl: `http://localhost:3978/src/assets/الأصول.txt`,
+          name: 'نص صِرف'
+        },
+        {
+          contentType: 'application/octet-stream',
+          contentUrl: `http://localhost:3978/src/assets/الأصول.docx`,
+          name: 'مستند'
+        }
+      ]
+    }
+    await context.sendActivity(fileReceipt);
+  }
+
 }

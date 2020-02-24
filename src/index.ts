@@ -16,6 +16,16 @@ server.listen(process.env.port || process.env.PORT || 3978, () => {
     console.log(`\n${ server.name } listening to ${ server.url }`);
 });
 
+// This is to serve attachments
+server.get(
+    '/assets/*',
+    restify.plugins.serveStatic({
+      directory: `./src/assets`,
+      appendRequestPath: false,
+      default: 'index.html'
+    })
+  )
+
 // Create adapter.
 // See https://aka.ms/about-bot-adapter to learn more about adapters.
 const adapter = new BotFrameworkAdapter({
