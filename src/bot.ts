@@ -133,7 +133,7 @@ export class WelcomeBot extends ActivityHandler {
           text: 'السعر: E£###.## دولار امريكي',
           images: [
             {
-              url: `http://localhost:3978/assets/surface1.jpg`
+              url: `${process.env.HOST}/assets/surface1.jpg`
             }
           ],
           buttons: [
@@ -158,7 +158,7 @@ export class WelcomeBot extends ActivityHandler {
           text: 'السعر: E£###.## دولار امريكي',
           images: [
             {
-              url: `http://localhost:3978/assets/surface2.jpg`
+              url: `${process.env.HOST}/assets/surface2.jpg`
             }
           ],
           buttons: [
@@ -183,7 +183,7 @@ export class WelcomeBot extends ActivityHandler {
           text: 'السعر: E£###.## دولار امريكي',
           images: [
             {
-              url: `http://localhost:3978/assets/surface3.jpg`
+              url: `${process.env.HOST}/assets/surface3.jpg`
             }
           ],
           buttons: [
@@ -208,7 +208,7 @@ export class WelcomeBot extends ActivityHandler {
           text: 'السعر: E£###.## دولار امريكي',
           images: [
             {
-              url: `http://localhost:3978/assets/surface4.jpg`
+              url: `${process.env.HOST}/assets/surface4.jpg`
             }
           ],
           buttons: [
@@ -242,12 +242,12 @@ export class WelcomeBot extends ActivityHandler {
       attachments: [
         {
           contentType: 'application/octet-stream',
-          contentUrl: `http://localhost:3978/src/assets/الأصول.txt`,
+          contentUrl: `${process.env.HOST}/src/assets/الأصول.txt`,
           name: 'نص صِرف'
         },
         {
           contentType: 'application/octet-stream',
-          contentUrl: `http://localhost:3978/src/assets/الأصول.docx`,
+          contentUrl: `${process.env.HOST}/src/assets/الأصول.docx`,
           name: 'مستند'
         }
       ]
